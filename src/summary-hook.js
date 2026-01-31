@@ -1,6 +1,6 @@
-const { SupermemoryClient } = require('./lib/supermemory-client');
+const { LocalMemoryDB } = require('./lib/local-db');
 const { getContainerTag, getProjectName } = require('./lib/container-tag');
-const { loadSettings, getApiKey, debugLog } = require('./lib/settings');
+const { loadSettings, debugLog } = require('./lib/settings');
 const { readStdin, writeOutput } = require('./lib/stdin');
 const { formatNewEntries } = require('./lib/transcript-formatter');
 
@@ -21,14 +21,6 @@ async function main() {
       return;
     }
 
-    let apiKey;
-    try {
-      apiKey = getApiKey(settings);
-    } catch {
-      writeOutput({ continue: true });
-      return;
-    }
-
     const formatted = formatNewEntries(transcriptPath, sessionId);
 
     if (!formatted) {
@@ -37,11 +29,11 @@ async function main() {
       return;
     }
 
-    const client = new SupermemoryClient(apiKey);
+    const db = new LocalMemoryDB();
     const containerTag = getContainerTag(cwd);
     const projectName = getProjectName(cwd);
 
-    await client.addMemory(
+    db.addMemory(
       formatted,
       containerTag,
       {
@@ -56,12 +48,12 @@ async function main() {
     writeOutput({ continue: true });
   } catch (err) {
     debugLog(settings, 'Error', { error: err.message });
-    console.error(`Supermemory: ${err.message}`);
+    console.error(`Memory: ${err.message}`);
     writeOutput({ continue: true });
   }
 }
 
 main().catch((err) => {
-  console.error(`Supermemory fatal: ${err.message}`);
+  console.error(`Memory fatal: ${err.message}`);
   process.exit(1);
 });

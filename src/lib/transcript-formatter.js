@@ -4,7 +4,7 @@ const os = require('node:os');
 
 const MAX_TOOL_RESULT_LENGTH = 500;
 const SKIP_RESULT_TOOLS = ['Read'];
-const TRACKER_DIR = path.join(os.homedir(), '.supermemory-claude', 'trackers');
+const TRACKER_DIR = path.join(os.homedir(), '.claude-memory', 'trackers');
 
 let toolUseMap = new Map();
 
