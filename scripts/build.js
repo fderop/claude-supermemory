@@ -7,14 +7,7 @@ const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'src');
 const OUT = path.join(ROOT, 'plugin', 'scripts');
 
-const hooks = [
-  'context-hook',
-  'prompt-hook',
-  'observation-hook',
-  'summary-hook',
-  'search-memory',
-  'add-memory',
-];
+const hooks = ['context-hook', 'summary-hook', 'search-memory', 'add-memory'];
 
 async function build() {
   console.log('Building hooks...\n');

@@ -1,108 +1,76 @@
-# Claude-Supermemory
+# Claude Memory
 
-<img width="1386" height="258" alt="Screenshot 2026-01-28 at 11 34 13 PM" src="https://github.com/user-attachments/assets/a692791a-a054-495a-ab53-45f1071ff26f" />
-
-> **✨ Requires [Supermemory Pro or above](https://console.supermemory.ai/billing)** - Unlock the state of the art memory for your OpenClaw bot.
-
-A Claude Code plugin that gives your AI persistent memory across sessions using [Supermemory](https://supermemory.ai).
-Your agent remembers what you worked on - across sessions, across projects.
-
+Local persistent memory plugin for Claude Code. Automatically remembers context across sessions using a local SQLite database. No API keys, no cloud -- all data stays at `~/.claude-memory/memories.db`.
 
 ## Features
 
 - **Context Injection**: On session start, relevant memories are automatically injected into Claude's context
-- **Automatic Capture**: Conversation turns are captured and stored for future context
+- **Automatic Capture**: Conversation turns are captured and stored when a session ends
 - **Codebase Indexing**: Index your project's architecture, patterns, and conventions
+- **Memory Search**: Search past sessions, decisions, and saved information
 
 ## Installation
 
 ```bash
-# Add the plugin marketplace
-/plugin marketplace add supermemoryai/claude-supermemory
-
-# Or from local directory
-/plugin marketplace add /path/to/claude-supermemory
-
-# Install the plugin
-/plugin install claude-supermemory
-
-# Set your API key
-export SUPERMEMORY_CC_API_KEY="sm_..."
+git clone https://github.com/fderop/claude-supermemory.git
+cd claude-supermemory
+npm install
+npm run build
+cd plugin && npm install && cd ..
 ```
 
-Get your API key at [console.supermemory.ai](https://console.supermemory.ai).
+Then in Claude Code, install the plugin:
+
+```
+/install-plugin /path/to/claude-supermemory/plugin
+```
 
 ## How It Works
 
-### On Session Start
+Two hooks fire automatically during Claude Code sessions:
 
-The plugin fetches relevant memories from Supermemory and injects them into Claude's context:
+- **SessionStart** -- queries SQLite for memories matching the current project, injects them into context
+- **Stop** -- parses the session transcript (NDJSON), saves new turns to SQLite
 
-```
-<supermemory-context>
-The following is recalled context about the user...
-
-## User Profile (Persistent)
-- Prefers TypeScript over JavaScript
-- Uses Bun as package manager
-
-## Recent Context
-- Working on authentication flow
-
-</supermemory-context>
-```
-
-### During Session
-
-Conversation turns are automatically captured on each stop and stored for future context.
-
-### Skills
-
-**super-search**: When you ask about past work, previous sessions, or want to recall information, the agent automatically searches your memories.
+Memories are scoped per-project via SHA256 hash of the git root. Search uses FTS5 with porter stemming and BM25 ranking.
 
 ## Commands
 
 ### /claude-supermemory:index
 
-Index your codebase into Supermemory. Explores project structure, architecture, conventions, and key files.
+Index your codebase into local memory. Explores project structure, architecture, conventions, and key files, then saves a compiled summary.
 
 ```
 /claude-supermemory:index
 ```
 
-### /claude-supermemory:logout
+## Skills
 
-Log out from Supermemory and clear saved credentials.
+### super-search
 
-```
-/claude-supermemory:logout
-```
+When you ask about past work, previous sessions, or want to recall information, the agent automatically searches your local memories.
 
 ## Configuration
 
 ### Environment Variables
 
 ```bash
-# Required
-SUPERMEMORY_CC_API_KEY=sm_...
-
-# Optional
-SUPERMEMORY_SKIP_TOOLS=Read,Glob,Grep    # Tools to not capture
-SUPERMEMORY_DEBUG=true                    # Enable debug logging
+CLAUDE_MEMORY_DEBUG=true    # Enable debug logging
 ```
 
 ### Settings File
 
-Create `~/.supermemory-claude/settings.json`:
+Create `~/.claude-memory/settings.json`:
 
 ```json
 {
-  "skipTools": ["Read", "Glob", "Grep", "TodoWrite"],
-  "captureTools": ["Edit", "Write", "Bash", "Task"],
   "maxProfileItems": 5,
   "debug": false
 }
 ```
+
+- `maxProfileItems` -- number of profile facts to inject into context (default: 5)
+- `debug` -- enable verbose logging to stderr (default: false)
 
 ## License
 

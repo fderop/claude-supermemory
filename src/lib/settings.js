@@ -6,11 +6,8 @@ const SETTINGS_DIR = path.join(os.homedir(), '.claude-memory');
 const SETTINGS_FILE = path.join(SETTINGS_DIR, 'settings.json');
 
 const DEFAULT_SETTINGS = {
-  skipTools: ['Read', 'Glob', 'Grep', 'TodoWrite', 'AskUserQuestion'],
-  captureTools: ['Edit', 'Write', 'Bash', 'Task'],
   maxProfileItems: 5,
   debug: false,
-  injectProfile: true,
 };
 
 function ensureSettingsDir() {
@@ -29,10 +26,6 @@ function loadSettings() {
   } catch (err) {
     console.error(`Settings: Failed to load ${SETTINGS_FILE}: ${err.message}`);
   }
-  if (process.env.CLAUDE_MEMORY_SKIP_TOOLS)
-    settings.skipTools = process.env.CLAUDE_MEMORY_SKIP_TOOLS.split(',').map(
-      (s) => s.trim(),
-    );
   if (process.env.CLAUDE_MEMORY_DEBUG === 'true') settings.debug = true;
   return settings;
 }
@@ -40,14 +33,6 @@ function loadSettings() {
 function saveSettings(settings) {
   ensureSettingsDir();
   fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
-}
-
-function shouldCaptureTool(toolName, settings) {
-  if (settings.skipTools.includes(toolName)) return false;
-  if (settings.captureTools && settings.captureTools.length > 0) {
-    return settings.captureTools.includes(toolName);
-  }
-  return true;
 }
 
 function debugLog(settings, message, data) {
@@ -67,6 +52,5 @@ module.exports = {
   DEFAULT_SETTINGS,
   loadSettings,
   saveSettings,
-  shouldCaptureTool,
   debugLog,
 };

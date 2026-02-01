@@ -1,6 +1,6 @@
-# Claude Memory — Local persistent memory plugin for Claude Code
+# Claude Memory -- Local persistent memory plugin for Claude Code
 
-Automatically remembers context across sessions using a local SQLite database. No API keys, no cloud — all data at `~/.claude-memory/memories.db`.
+Automatically remembers context across sessions using a local SQLite database. No API keys, no cloud -- all data at `~/.claude-memory/memories.db`.
 
 ## Installation
 
@@ -20,18 +20,17 @@ Then in Claude Code, install the plugin:
 
 ## How it works
 
-4 hooks fire automatically during Claude Code sessions:
+2 hooks fire automatically during Claude Code sessions:
 
-- **SessionStart** — queries SQLite for memories matching the current project, injects them into context
-- **Stop** — parses the session transcript (NDJSON), saves new turns to SQLite
-- **PostToolUse** / **UserPromptSubmit** — no-ops (reserved for future use)
+- **SessionStart** -- queries SQLite for memories matching the current project, injects them into context
+- **Stop** -- parses the session transcript (NDJSON), saves new turns to SQLite
 
 Memories are scoped per-project via SHA256 hash of the git root. Search uses FTS5 with porter stemming and BM25 ranking.
 
 ## Development
 
 ```bash
-npm run build      # bundle src/ → plugin/scripts/*.cjs
+npm run build      # bundle src/ -> plugin/scripts/*.cjs
 npm run lint       # biome check
 npm run lint:fix   # biome auto-fix
 ```
@@ -40,10 +39,10 @@ No tests. Biome for linting/formatting (2-space indent, single quotes, semicolon
 
 ## Key files
 
-- `src/lib/local-db.js` — `LocalMemoryDB` class: addMemory, search, getProfile, listMemories, deleteMemory
-- `src/context-hook.js` — SessionStart hook entry point
-- `src/summary-hook.js` — Stop hook entry point
-- `src/lib/settings.js` — config from `~/.claude-memory/settings.json` or `CLAUDE_MEMORY_*` env vars
-- `src/lib/transcript-formatter.js` — incremental transcript parsing, tracks last-captured UUID
-- `src/lib/format-context.js` — formats memories into `<supermemory-context>` XML for injection
-- `scripts/build.js` — esbuild bundler, 6 entry points → plugin/scripts/*.cjs
+- `src/lib/local-db.js` -- `LocalMemoryDB` class: addMemory, search, getProfile, listMemories, deleteMemory
+- `src/context-hook.js` -- SessionStart hook entry point
+- `src/summary-hook.js` -- Stop hook entry point
+- `src/lib/settings.js` -- config from `~/.claude-memory/settings.json` or `CLAUDE_MEMORY_*` env vars
+- `src/lib/transcript-formatter.js` -- incremental transcript parsing, tracks last-captured UUID
+- `src/lib/format-context.js` -- formats memories into `<supermemory-context>` XML for injection
+- `scripts/build.js` -- esbuild bundler, 4 entry points -> plugin/scripts/*.cjs
